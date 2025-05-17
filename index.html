@@ -5,7 +5,6 @@
   <title>Calculadora TEDIT</title>
   <style>
     body { font-family: Arial, sans-serif; padding: 20px; background: #f8f9fa; }
-  if (!cie || !cie.codigo || !cie.grupo) return;
   const grupo = String(cie.grupo);
     table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
     td, th { border: 1px solid #ccc; padding: 10px; text-align: center; }
@@ -146,6 +145,7 @@ grupoKey = document.getElementById('grupoCarga').value;
   document.getElementById('fc_ocupacion').textContent = fcOcup;
   document.getElementById('tei').textContent = tiempo;
   document.getElementById('resultado').textContent = `TEDIT = ${tedit} días`;
+  if (!cie || !cie.codigo || !cie.grupo || !cie.tiempo) return;
   if (!cie || !cie.codigo || !cie.grupo || !cie.tiempo) return;
   document.getElementById('detalle_calculo').textContent = 
     `TEDIT = ${tiempo} × ${fcOcup} × ${fcEdad} = ${tedit} días`;
