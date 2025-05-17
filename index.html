@@ -40,7 +40,7 @@
   <tr>
     <td>Enfermedad (CIE-10)</td>
     <td><input type="text" id="busqueda" class="input-green" placeholder="Buscar..."><br>
-        <select id="cie" class="input-green" size="5" style="width:100%;"></select>
+        <select id="cie" class="input-green" size="3" style="width:100%;"></select>
     </td>
     <td><span id="tei">-</span></td>
   </tr>
@@ -98,7 +98,26 @@ function actualizarListaCIE() {
   actualizar();
 }
 
+
 function actualizar() {
+  // Validación por grupo CIE10
+  const cieKey = document.getElementById('cie').value;
+  const grupoKey = document.getElementById('grupoCarga').value;
+
+  if (!cieKey || !grupoKey) return;
+
+  const cieGrupo = cieData[cieKey].codigo.substring(0, 1);
+  const cieCapitulo = cieData[cieKey].codigo.substring(0, 3);
+  const esMental = grupoKey.startsWith("Mental");
+
+  // Validación para F00-F99
+  if (cieCapitulo >= "F00" && cieCapitulo <= "F99" && !esMental) {
+    alert("El grupo CIE-10 F00–F99 solo permite carga Mental.");
+    return;
+  }
+
+  // Validación para C00-D48 permite ambos: no se bloquea
+
   const cieKey = document.getElementById('cie').value;
   const edad = parseInt(document.getElementById('edad').value);
   const grupoKey = document.getElementById('grupoCarga').value;
@@ -124,7 +143,7 @@ function actualizar() {
   document.getElementById('resultado').textContent = `TEDIT = ${tedit} días`;
   document.getElementById('detalle_calculo').textContent = 
     `TEDIT = ${tiempo} × ${fcOcup} × ${fcEdad} = ${tedit} días`;
-  document.getElementById('descripcion_enfermedad').textContent =
+  document.getElementById('descripcion_enfermedad').textContent = "Grupo CIE10: " + cieCapitulo + " | " +
     `CIE10 = ${cie.codigo} — ${cieKey}`;
 }
 </script>
