@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Calculadora de Incapacidad Laboral</title>
+  <style>
+    body { font-family: Arial; padding: 20px; max-width: 600px; margin: auto; }
+    label, select, input { display: block; margin: 10px 0; }
+  </style>
+</head>
+<body>
+  <h2>Calculadora de Días de Incapacidad Laboral</h2>
+
+  <label for="edad">Edad:</label>
+  <select id="edad">
+    <option value="1.0">Menor de 30</option>
+    <option value="1.1">Entre 30 y 50</option>
+    <option value="1.2">Mayor de 50</option>
+  </select>
+
+  <label for="ocupacion">Ocupación:</label>
+  <select id="ocupacion">
+    <option value="1.0">Administrativo</option>
+    <option value="1.3">Técnico en emergencia</option>
+    <option value="1.4">Médico en UCI</option>
+  </select>
+
+  <label for="enfermedad">Enfermedad:</label>
+  <select id="enfermedad">
+    <option value="3">Gripe común</option>
+    <option value="5">Lumbalgia</option>
+    <option value="10">Neumonía</option>
+    <option value="14">COVID-19</option>
+  </select>
+
+  <button onclick="calcular()">Calcular días de incapacidad</button>
+
+  <h3 id="resultado"></h3>
+
+  <script>
+    function calcular() {
+      const edad = parseFloat(document.getElementById("edad").value);
+      const ocupacion = parseFloat(document.getElementById("ocupacion").value);
+      const enfermedad = parseFloat(document.getElementById("enfermedad").value);
+
+      const dias = Math.round(enfermedad * edad * ocupacion);
+
+      document.getElementById("resultado").innerText = `Días estimados de incapacidad: ${dias}`;
+    }
+  </script>
+</body>
+</html>
