@@ -21,8 +21,18 @@
 <table>
   <tr>
     <th>CRITERIO</th>
-    <th>CARGA</th>
+    <th>ENTRADA</th>
     <th>FACTOR DE CORRECCIÓN</th>
+  </tr>
+  <tr>
+    <td>Tipo de Carga</td>
+    <td>
+      <select id="tipoCarga" class="input-green">
+        <option value="fisico">Física</option>
+        <option value="mental">Mental</option>
+      </select>
+    </td>
+    <td>-</td>
   </tr>
   <tr>
     <td>Trabajo Habitual</td>
@@ -35,8 +45,10 @@
     <td><span id="fc_edad">-</span></td>
   </tr>
   <tr>
-    <td>Tiempo Estándar de IT</td>
-    <td><select id="cie" class="input-green"></select></td>
+    <td>Enfermedad (CIE-10)</td>
+    <td><input type="text" id="busqueda" class="input-green" placeholder="Buscar..."><br>
+        <select id="cie" class="input-green" size="5" style="width:100%;"></select>
+    </td>
     <td><span id="tei">-</span></td>
   </tr>
 </table>
@@ -55,21 +67,14 @@ let ocupaciones = {};
 
 fetch('cie_data.json').then(r => r.json()).then(data => {
   cieData = data;
-  const cieSelect = document.getElementById('cie');
-  for (const [desc, info] of Object.entries(data)) {
-    const option = document.createElement('option');
-    option.value = desc;
-    option.textContent = `${info.codigo} - ${desc}`;
-    cieSelect.appendChild(option);
-  }
-  actualizar();
+  actualizarListaCIE();
 });
 
 fetch('grupo_edad.json').then(r => r.json()).then(data => { edadFactor = data; });
 fetch('ocupaciones.json').then(r => r.json()).then(data => {
   ocupaciones = data;
   const ocupSelect = document.getElementById('ocupacion');
-  for (const [name, val] of Object.entries(data)) {
+  for (const name of Object.keys(data)) {
     const option = document.createElement('option');
     option.value = name;
     option.textContent = name;
@@ -81,13 +86,32 @@ fetch('ocupaciones.json').then(r => r.json()).then(data => {
 document.getElementById('edad').addEventListener('input', actualizar);
 document.getElementById('cie').addEventListener('change', actualizar);
 document.getElementById('ocupacion').addEventListener('change', actualizar);
+document.getElementById('tipoCarga').addEventListener('change', actualizar);
+document.getElementById('busqueda').addEventListener('input', actualizarListaCIE);
+
+function actualizarListaCIE() {
+  const busqueda = document.getElementById('busqueda').value.toLowerCase();
+  const cieSelect = document.getElementById('cie');
+  cieSelect.innerHTML = "";
+
+  for (const [desc, info] of Object.entries(cieData)) {
+    if (desc.toLowerCase().includes(busqueda) || info.codigo.toLowerCase().includes(busqueda)) {
+      const option = document.createElement('option');
+      option.value = desc;
+      option.textContent = `${info.codigo} - ${desc}`;
+      cieSelect.appendChild(option);
+    }
+  }
+  actualizar();
+}
 
 function actualizar() {
   const cieKey = document.getElementById('cie').value;
   const edad = parseInt(document.getElementById('edad').value);
   const ocup = document.getElementById('ocupacion').value;
+  const tipoCarga = document.getElementById('tipoCarga').value;
 
-  if (!cieKey || isNaN(edad) || !ocup) return;
+  if (!cieKey || isNaN(edad) || !ocup || !tipoCarga) return;
 
   const cie = cieData[cieKey];
   const grupo = cie.grupo;
@@ -98,7 +122,7 @@ function actualizar() {
   if (edad > 55) grupoEdad = ">55";
 
   const fcEdad = parseFloat(edadFactor[grupo]?.[grupoEdad] || 1);
-  const fcOcup = parseFloat(ocupaciones[ocup] || 1);
+  const fcOcup = parseFloat(ocupaciones[ocup]?.[tipoCarga] || 1);
 
   const tedit = (tiempo * fcEdad * fcOcup).toFixed(2);
 
