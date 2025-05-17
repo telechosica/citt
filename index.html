@@ -127,7 +127,6 @@ cieKey = document.getElementById('cie').value;
   const edad = parseInt(document.getElementById('edad').value);
 grupoKey = document.getElementById('grupoCarga').value;
 
-  if (!cieKey || isNaN(edad) || !grupoKey) return;
 
   const cie = cieData[cieKey];
   const grupo = String(cie.grupo);
