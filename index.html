@@ -18,6 +18,15 @@
 <table>
   <tr><th>CRITERIO</th><th>ENTRADA</th><th>FACTOR DE CORRECCIÓN</th></tr>
   <tr>
+    <td>Enfermedad (CIE-10)</td>
+    <td>
+      <input type="text" id="busqueda" class="input-green" placeholder="Buscar…" />
+      <br />
+      <select id="cie" class="input-green" size="4" style="width:100%"></select>
+    </td>
+    <td><span id="tei">-</span></td>
+  </tr>
+  <tr>
     <td>Grupo de Carga</td>
     <td><select id="grupoCarga" class="input-green"></select></td>
     <td><span id="fc_ocupacion">-</span></td>
@@ -26,15 +35,6 @@
     <td>Edad</td>
     <td><input type="number" id="edad" class="input-green" min="0" max="100" value="30" /></td>
     <td><span id="fc_edad">-</span></td>
-  </tr>
-  <tr>
-    <td>Enfermedad (CIE-10)</td>
-    <td>
-      <input type="text" id="busqueda" class="input-green" placeholder="Buscar…" />
-      <br />
-      <select id="cie" class="input-green" size="4" style="width:100%"></select>
-    </td>
-    <td><span id="tei">-</span></td>
   </tr>
 </table>
 <h3 class="output-blue" id="resultado">TEDIT</h3>
@@ -49,7 +49,7 @@ Promise.all([
   fetch('./grupo_edad.json').then(r=>r.json()).then(d=>edadFactor=d),
   fetch('./grupos_carga.json').then(r=>r.json()).then(d=>gruposCarga=d),
   fetch('./tooltip_carga.json').then(r=>r.json()).then(d=>tooltipCarga=d)
-]).then( inicializar );
+]).then(inicializar);
 function inicializar(){
   const selCarga=document.getElementById('grupoCarga');
   Object.keys(gruposCarga).forEach(k=>{
