@@ -116,7 +116,23 @@ let grupoKey = document.getElementById('grupoCarga').value;
   const esMental = grupoKey.startsWith("Mental");
 
   // Validación para F00-F99
+
+  const cieCapitulo = cie.codigo.substring(0, 3);
+  const esMental = grupoKey.startsWith("Mental");
+
+  // Validación de tipo de carga por grupo CIE10
   if (cieCapitulo >= "F00" && cieCapitulo <= "F99" && !esMental) {
+    alert("Diagnósticos F00–F99 solo permiten carga Mental.");
+    return;
+  }
+  if (cieCapitulo >= "C00" && cieCapitulo <= "D48") {
+    // Permite ambas cargas
+  } else if (cieCapitulo < "F00" || cieCapitulo > "F99") {
+    if (esMental) {
+      alert("Este diagnóstico solo permite carga Física.");
+      return;
+    }
+  }
     alert("El grupo CIE-10 F00–F99 solo permite carga Mental.");
     return;
   }
