@@ -131,6 +131,7 @@ grupoKey = document.getElementById('grupoCarga').value;
 
 
   const cie = cieData[cieKey];
+  if (!cie.tiempo) return;
   const tiempo = cie.tiempo;
 
   let grupoEdad = "18-36";
