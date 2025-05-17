@@ -5,6 +5,8 @@
   <title>Calculadora TEDIT</title>
   <style>
     body { font-family: Arial, sans-serif; padding: 20px; background: #f8f9fa; }
+  if (!cie || !cie.codigo || !cie.grupo) return;
+  const grupo = String(cie.grupo);
     table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
     td, th { border: 1px solid #ccc; padding: 10px; text-align: center; }
     th { background-color: #ffc107; color: #000; }
@@ -129,7 +131,6 @@ grupoKey = document.getElementById('grupoCarga').value;
 
 
   const cie = cieData[cieKey];
-  const grupo = String(cie.grupo);
   const tiempo = cie.tiempo;
 
   let grupoEdad = "18-36";
