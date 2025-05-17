@@ -2,51 +2,116 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Calculadora de Incapacidad Laboral</title>
+  <title>Calculadora TEDIT</title>
   <style>
-    body { font-family: Arial; padding: 20px; max-width: 600px; margin: auto; }
-    label, select, input { display: block; margin: 10px 0; }
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f8f9fa; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+    td, th { border: 1px solid #ccc; padding: 10px; text-align: center; }
+    th { background-color: #ffc107; color: #000; }
+    .input-green { background-color: #c6efce; }
+    .output-blue { background-color: #cfe2f3; font-weight: bold; font-size: 1.5em; text-align: center; }
+    .note { color: green; font-size: 0.9em; }
+    .formula { font-weight: bold; font-size: 1.1em; }
   </style>
 </head>
 <body>
-  <h2>Calculadora de Días de Incapacidad Laboral</h2>
 
-  <label for="edad">Edad:</label>
-  <select id="edad">
-    <option value="1.0">Menor de 30</option>
-    <option value="1.1">Entre 30 y 50</option>
-    <option value="1.2">Mayor de 50</option>
-  </select>
+<h2>Calculadora de Días de Incapacidad Temporal - TEDIT</h2>
 
-  <label for="ocupacion">Ocupación:</label>
-  <select id="ocupacion">
-    <option value="1.0">Administrativo</option>
-    <option value="1.3">Técnico en emergencia</option>
-    <option value="1.4">Médico en UCI</option>
-  </select>
+<table>
+  <tr>
+    <th>CRITERIO</th>
+    <th>CARGA</th>
+    <th>FACTOR DE CORRECCIÓN</th>
+  </tr>
+  <tr>
+    <td>Trabajo Habitual</td>
+    <td><select id="ocupacion" class="input-green"></select></td>
+    <td><span id="fc_ocupacion">-</span></td>
+  </tr>
+  <tr>
+    <td>Edad</td>
+    <td><input type="number" id="edad" class="input-green" min="0" max="100" value="30"></td>
+    <td><span id="fc_edad">-</span></td>
+  </tr>
+  <tr>
+    <td>Tiempo Estándar de IT</td>
+    <td><select id="cie" class="input-green"></select></td>
+    <td><span id="tei">-</span></td>
+  </tr>
+</table>
 
-  <label for="enfermedad">Enfermedad:</label>
-  <select id="enfermedad">
-    <option value="3">Gripe común</option>
-    <option value="5">Lumbalgia</option>
-    <option value="10">Neumonía</option>
-    <option value="14">COVID-19</option>
-  </select>
+<h3 class="output-blue" id="resultado">TEDIT</h3>
 
-  <button onclick="calcular()">Calcular días de incapacidad</button>
+<p class="note">* Solo llenar las celdas de color verde.<br>** Verificar que se han ingresado los 3 datos necesarios para obtener el TEDIT.</p>
 
-  <h3 id="resultado"></h3>
+<p class="formula" id="detalle_calculo"></p>
+<p id="descripcion_enfermedad"></p>
 
-  <script>
-    function calcular() {
-      const edad = parseFloat(document.getElementById("edad").value);
-      const ocupacion = parseFloat(document.getElementById("ocupacion").value);
-      const enfermedad = parseFloat(document.getElementById("enfermedad").value);
+<script>
+let cieData = {};
+let edadFactor = {};
+let ocupaciones = {};
 
-      const dias = Math.round(enfermedad * edad * ocupacion);
+fetch('cie_data.json').then(r => r.json()).then(data => {
+  cieData = data;
+  const cieSelect = document.getElementById('cie');
+  for (const [desc, info] of Object.entries(data)) {
+    const option = document.createElement('option');
+    option.value = desc;
+    option.textContent = `${info.codigo} - ${desc}`;
+    cieSelect.appendChild(option);
+  }
+  actualizar();
+});
 
-      document.getElementById("resultado").innerText = `Días estimados de incapacidad: ${dias}`;
-    }
-  </script>
+fetch('grupo_edad.json').then(r => r.json()).then(data => { edadFactor = data; });
+fetch('ocupaciones.json').then(r => r.json()).then(data => {
+  ocupaciones = data;
+  const ocupSelect = document.getElementById('ocupacion');
+  for (const [name, val] of Object.entries(data)) {
+    const option = document.createElement('option');
+    option.value = name;
+    option.textContent = name;
+    ocupSelect.appendChild(option);
+  }
+  actualizar();
+});
+
+document.getElementById('edad').addEventListener('input', actualizar);
+document.getElementById('cie').addEventListener('change', actualizar);
+document.getElementById('ocupacion').addEventListener('change', actualizar);
+
+function actualizar() {
+  const cieKey = document.getElementById('cie').value;
+  const edad = parseInt(document.getElementById('edad').value);
+  const ocup = document.getElementById('ocupacion').value;
+
+  if (!cieKey || isNaN(edad) || !ocup) return;
+
+  const cie = cieData[cieKey];
+  const grupo = cie.grupo;
+  const tiempo = cie.tiempo;
+
+  let grupoEdad = "18-36";
+  if (edad >= 37 && edad <= 55) grupoEdad = "37-55";
+  if (edad > 55) grupoEdad = ">55";
+
+  const fcEdad = parseFloat(edadFactor[grupo]?.[grupoEdad] || 1);
+  const fcOcup = parseFloat(ocupaciones[ocup] || 1);
+
+  const tedit = (tiempo * fcEdad * fcOcup).toFixed(2);
+
+  document.getElementById('fc_edad').textContent = fcEdad;
+  document.getElementById('fc_ocupacion').textContent = fcOcup;
+  document.getElementById('tei').textContent = tiempo;
+  document.getElementById('resultado').textContent = `TEDIT = ${tedit} días`;
+  document.getElementById('detalle_calculo').textContent = 
+    `TEDIT = ${tiempo} × ${fcOcup} × ${fcEdad} = ${tedit} días`;
+  document.getElementById('descripcion_enfermedad').textContent =
+    `CIE10 = ${cie.codigo} — ${cieKey}`;
+}
+</script>
+
 </body>
 </html>
