@@ -131,7 +131,6 @@ grupoKey = document.getElementById('grupoCarga').value;
 
 
   const cie = cieData[cieKey];
-  if (!cie.tiempo) return;
   const tiempo = cie.tiempo;
 
   let grupoEdad = "18-36";
@@ -147,6 +146,7 @@ grupoKey = document.getElementById('grupoCarga').value;
   document.getElementById('fc_ocupacion').textContent = fcOcup;
   document.getElementById('tei').textContent = tiempo;
   document.getElementById('resultado').textContent = `TEDIT = ${tedit} días`;
+  if (!cie || !cie.codigo || !cie.grupo || !cie.tiempo) return;
   document.getElementById('detalle_calculo').textContent = 
     `TEDIT = ${tiempo} × ${fcOcup} × ${fcEdad} = ${tedit} días`;
   document.getElementById('descripcion_enfermedad').textContent = "Grupo CIE10: " + cieCapitulo + " | " +
