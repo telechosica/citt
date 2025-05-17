@@ -106,7 +106,8 @@ function actualizarListaCIE() {
 
 function actualizar() {
   // Validación por grupo CIE10
-  const cieKey = document.getElementById('cie').value;
+  // const cieKey = document.getElementById('cie').value;
+cieKey = document.getElementById('cie').value;
   const grupoKey = document.getElementById('grupoCarga').value;
 
   if (!cieKey || !grupoKey) return;
@@ -123,7 +124,8 @@ function actualizar() {
 
   // Validación para C00-D48 permite ambos: no se bloquea
 
-// const cieKey = document.getElementById('cie').value; // eliminado por duplicación
+  // const cieKey = document.getElementById('cie').value;
+cieKey = document.getElementById('cie').value;
   const edad = parseInt(document.getElementById('edad').value);
   const grupoKey = document.getElementById('grupoCarga').value;
 
