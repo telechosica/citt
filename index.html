@@ -107,13 +107,24 @@ function actualizar(){
   const cieCapitulo=cie.codigo.substring(0,3);
   const esMental=grupoKey.startsWith('Mental');
 
-  // reglas de validación por capítulo
-  if(cieCapitulo>='F00'&&cieCapitulo<='F99'&&!esMental){
-    alert('Capítulos F00–F99 solo permiten carga Mental');return;
+// ─────  VALIDACIÓN SEGÚN CAPÍTULO CIE-10  ─────
+const cieCapitulo = cie.codigo.substring(0, 3);   // ej. “F41”
+const esMental    = grupoKey.startsWith('Mental');
+
+if (cieCapitulo >= 'F00' && cieCapitulo <= 'F99') {      // F00–F99
+  if (!esMental) {
+    alert('Los capítulos F00–F99 permiten solamente carga Mental');
+    return;
   }
-  if(cieCapitulo<'C00'||cieCapitulo>'D48'){ // fuera de C00-D48 y F00-F99
-    if(esMental){alert('Este diagnóstico solo permite carga Física');return;}
+} else if (cieCapitulo >= 'C00' && cieCapitulo <= 'D48') {   // C00–D48
+  // se permite Física o Mental  → no se hace nada
+} else {                                                    // resto de capítulos
+  if (esMental) {
+    alert('Este diagnóstico permite solamente carga Física');
+    return;
   }
+}
+
 
   // factores
   const grupoEdad = edad<37 ? '18-36' : (edad<=55 ? '37-55' : '>55');
