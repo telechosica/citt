@@ -130,7 +130,7 @@ grupoKey = document.getElementById('grupoCarga').value;
   if (!cieKey || isNaN(edad) || !grupoKey) return;
 
   const cie = cieData[cieKey];
-  const grupo = cie.grupo;
+  const grupo = String(cie.grupo);
   const tiempo = cie.tiempo;
 
   let grupoEdad = "18-36";
