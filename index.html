@@ -58,17 +58,17 @@ let cieData = {};
 let edadFactor = {};
 let grupoCarga = {};
 
-fetch('cie_data.json').then(r => r.json()).then(data => {
+fetch('./cie_data.json').then(r => r.json()).then(data => {
   cieData = data;
   actualizarListaCIE();
 });
 
-fetch('grupo_edad.json').then(r => r.json()).then(data => { edadFactor = data; });
+fetch('./grupo_edad.json').then(r => r.json()).then(data => { edadFactor = data; });
 
 let tooltipCarga = {};
-fetch('tooltip_carga.json').then(r => r.json()).then(tips => { tooltipCarga = tips; });
+fetch('./tooltip_carga.json').then(r => r.json()).then(tips => { tooltipCarga = tips; });
 
-fetch('grupos_carga.json').then(r => r.json()).then(data => {
+fetch('./grupos_carga.json').then(r => r.json()).then(data => {
 
   grupoCarga = data;
   const select = document.getElementById('grupoCarga');
