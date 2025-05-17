@@ -1,47 +1,40 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Calculadora TEDIT</title>
-  <style>
-    body { font-family: Arial, sans-serif; padding: 20px; background: #f8f9fa; }
-  const grupo = String(cie.grupo);
-    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-    td, th { border: 1px solid #ccc; padding: 10px; text-align: center; }
-    th { background-color: #ffc107; color: #000; }
-    .input-green { background-color: #c6efce; }
-    .output-blue { background-color: #cfe2f3; font-weight: bold; font-size: 1.5em; text-align: center; }
-    .note { color: green; font-size: 0.9em; }
-    .formula { font-weight: bold; font-size: 1.1em; }
-    select[title] { position: relative; }
-  </style>
+<meta charset="UTF-8" />
+<title>Calculadora de Días de Incapacidad Temporal – TEDIT</title>
+<style>
+  body{font-family:Arial,sans-serif;background:#f8f9fa;padding:20px}
+  table{width:100%;border-collapse:collapse;margin-bottom:20px}
+  th,td{border:1px solid #ccc;padding:10px;text-align:center}
+  th{background:#ffc107}
+  .input-green{background:#c6efce}
+  .output-blue{background:#cfe2f3;font-weight:bold;font-size:1.5em;text-align:center}
+  .note{color:green;font-size:.85em}
+</style>
 </head>
 <body>
 
-<h2>Calculadora de Días de Incapacidad Temporal - TEDIT</h2>
+<h2>Calculadora de Días de Incapacidad Temporal – TEDIT</h2>
 
 <table>
-  <tr>
-    <th>CRITERIO</th>
-    <th>ENTRADA</th>
-    <th>FACTOR DE CORRECCIÓN</th>
-  </tr>
+  <tr><th>CRITERIO</th><th>ENTRADA</th><th>FACTOR DE CORRECCIÓN</th></tr>
   <tr>
     <td>Grupo de Carga</td>
-    <td>
-      <select id="grupoCarga" class="input-green" title="Seleccione grupo. Detalles completos al pasar el mouse."></select>
-    </td>
+    <td><select id="grupoCarga" class="input-green"></select></td>
     <td><span id="fc_ocupacion">-</span></td>
   </tr>
   <tr>
     <td>Edad</td>
-    <td><input type="number" id="edad" class="input-green" min="0" max="100" value="30"></td>
+    <td><input type="number" id="edad" class="input-green" min="0" max="100" value="30" /></td>
     <td><span id="fc_edad">-</span></td>
   </tr>
   <tr>
     <td>Enfermedad (CIE-10)</td>
-    <td><input type="text" id="busqueda" class="input-green" placeholder="Buscar..."><br>
-        <select id="cie" class="input-green" size="3" style="width:100%;"></select>
+    <td>
+      <input type="text" id="busqueda" class="input-green" placeholder="Buscar…" />
+      <br />
+      <select id="cie" class="input-green" size="4" style="width:100%"></select>
     </td>
     <td><span id="tei">-</span></td>
   </tr>
@@ -49,109 +42,95 @@
 
 <h3 class="output-blue" id="resultado">TEDIT</h3>
 
-<p class="note">* Solo llenar las celdas de color verde.<br>** Verificar que se han ingresado los 3 datos necesarios para obtener el TEDIT.</p>
+<p class="note">* Completa solo las celdas verdes.  
+** Debes ingresar los tres datos para obtener el TEDIT.</p>
 
-<p class="formula" id="detalle_calculo"></p>
+<p id="detalle_calculo" style="font-weight:bold"></p>
 <p id="descripcion_enfermedad"></p>
 
 <script>
-let cieData = {};
-let edadFactor = {};
-let grupoCarga = {};
+let cieData={}, edadFactor={}, gruposCarga={}, tooltipCarga={};
 
-fetch('./cie_data.json').then(r => r.json()).then(data => {
-  cieData = data;
+Promise.all([
+  fetch('./cie_data.json').then(r=>r.json()).then(d=>cieData=d),
+  fetch('./grupo_edad.json').then(r=>r.json()).then(d=>edadFactor=d),
+  fetch('./grupos_carga.json').then(r=>r.json()).then(d=>gruposCarga=d),
+  fetch('./tooltip_carga.json').then(r=>r.json()).then(d=>tooltipCarga=d)
+]).then( inicializar );
+
+function inicializar(){
+  // poblar selector de Grupo de Carga
+  const selCarga=document.getElementById('grupoCarga');
+  Object.keys(gruposCarga).forEach(k=>{
+    const o=document.createElement('option');
+    o.value=k;
+    o.textContent=k;
+    o.title=(tooltipCarga[k]||'')+'\nFactor: '+gruposCarga[k];
+    selCarga.appendChild(o);
+  });
+
+  // poblar selector CIE
   actualizarListaCIE();
-});
 
-fetch('./grupo_edad.json').then(r => r.json()).then(data => { edadFactor = data; });
+  // listeners
+  document.getElementById('busqueda').addEventListener('input', actualizarListaCIE);
+  ['grupoCarga','edad','cie'].forEach(id=>{
+    document.getElementById(id).addEventListener('change', actualizar)
+  });
+}
 
-let tooltipCarga = {};
-fetch('./tooltip_carga.json').then(r => r.json()).then(tips => { tooltipCarga = tips; });
-
-fetch('./grupos_carga.json').then(r => r.json()).then(data => {
-
-  grupoCarga = data;
-  const select = document.getElementById('grupoCarga');
-  for (const [clave, val] of Object.entries(data)) {
-    const opt = document.createElement('option');
-    opt.value = clave;
-    opt.textContent = clave;
-    opt.title = `${tooltipCarga[clave] || ""}\nFactor de corrección: ${val}`;
-    select.appendChild(opt);
-  }
-  actualizar();
-});
-
-document.getElementById('edad').addEventListener('input', actualizar);
-document.getElementById('cie').addEventListener('change', actualizar);
-document.getElementById('grupoCarga').addEventListener('change', actualizar);
-document.getElementById('busqueda').addEventListener('input', actualizarListaCIE);
-
-function actualizarListaCIE() {
-  const busqueda = document.getElementById('busqueda').value.toLowerCase();
-  const cieSelect = document.getElementById('cie');
-  cieSelect.innerHTML = "";
-
-  for (const [desc, info] of Object.entries(cieData)) {
-    if (desc.toLowerCase().includes(busqueda) || info.codigo.toLowerCase().includes(busqueda)) {
-      const option = document.createElement('option');
-      option.value = desc;
-      option.textContent = `${info.codigo} - ${desc}`;
-      cieSelect.appendChild(option);
+function actualizarListaCIE(){
+  const texto=document.getElementById('busqueda').value.toLowerCase();
+  const sel=document.getElementById('cie');
+  sel.innerHTML='';
+  for(const [desc,info] of Object.entries(cieData)){
+    if(desc.toLowerCase().includes(texto)||info.codigo.toLowerCase().includes(texto)){
+      const o=document.createElement('option');
+      o.value=desc;
+      o.textContent=`${info.codigo} – ${desc}`;
+      sel.appendChild(o);
     }
   }
   actualizar();
 }
 
+function actualizar(){
+  const cieKey=document.getElementById('cie').value;
+  const edad=parseInt(document.getElementById('edad').value,10);
+  const grupoKey=document.getElementById('grupoCarga').value;
 
-function actualizar() {
-  // Validación por grupo CIE10
-let cieKey = document.getElementById('cie').value;
-let grupoKey = document.getElementById('grupoCarga').value;
+  if(!cieKey||isNaN(edad)||!grupoKey) return;
 
-  if (!cieKey || !grupoKey) return;
+  const cie=cieData[cieKey];
+  if(!cie||!cie.codigo||!cie.grupo||!cie.tiempo) return;
 
-  const cieGrupo = cieData[cieKey].codigo.substring(0, 1);
-let cieCapitulo = cie.codigo.substring(0, 3);
-  const esMental = grupoKey.startsWith("Mental");
+  const cieCapitulo=cie.codigo.substring(0,3);
+  const esMental=grupoKey.startsWith('Mental');
 
-  // Validación para F00-F99
-cieCapitulo = cie.codigo.substring(0, 3);
-    alert("El grupo CIE-10 F00–F99 solo permite carga Mental.");
-    return;
+  // reglas de validación por capítulo
+  if(cieCapitulo>='F00'&&cieCapitulo<='F99'&&!esMental){
+    alert('Capítulos F00–F99 solo permiten carga Mental');return;
+  }
+  if(cieCapitulo<'C00'||cieCapitulo>'D48'){ // fuera de C00-D48 y F00-F99
+    if(esMental){alert('Este diagnóstico solo permite carga Física');return;}
   }
 
-  // Validación para C00-D48 permite ambos: no se bloquea
+  // factores
+  const grupoEdad = edad<37 ? '18-36' : (edad<=55 ? '37-55' : '>55');
+  const fcEdad = parseFloat((edadFactor[String(cie.grupo)]||{})[grupoEdad]||1);
+  const fcCarga = parseFloat(gruposCarga[grupoKey]||1);
+  const tedit = (cie.tiempo*fcEdad*fcCarga).toFixed(2);
 
-cieKey = document.getElementById('cie').value;
-  const edad = parseInt(document.getElementById('edad').value);
-grupoKey = document.getElementById('grupoCarga').value;
-
-
-  const cie = cieData[cieKey];
-  const tiempo = cie.tiempo;
-
-  let grupoEdad = "18-36";
-  if (edad >= 37 && edad <= 55) grupoEdad = "37-55";
-  if (edad > 55) grupoEdad = ">55";
-
-  const fcEdad = parseFloat(edadFactor[grupo]?.[grupoEdad] || 1);
-  const fcOcup = parseFloat(grupoCarga[grupoKey] || 1);
-
-  const tedit = (tiempo * fcEdad * fcOcup).toFixed(2);
-
-  document.getElementById('fc_edad').textContent = fcEdad;
-  document.getElementById('fc_ocupacion').textContent = fcOcup;
-  document.getElementById('tei').textContent = tiempo;
-  document.getElementById('resultado').textContent = `TEDIT = ${tedit} días`;
-  if (!cie || !cie.codigo || !cie.grupo || !cie.tiempo) return;
-  if (!cie || !cie.codigo || !cie.grupo || !cie.tiempo) return;
-  document.getElementById('detalle_calculo').textContent = 
-    `TEDIT = ${tiempo} × ${fcOcup} × ${fcEdad} = ${tedit} días`;
-  document.getElementById('descripcion_enfermedad').textContent = "Grupo CIE10: " + cieCapitulo + " | " +
-    `CIE10 = ${cie.codigo} — ${cieKey}`;
+  // mostrar
+  document.getElementById('fc_edad').textContent=fcEdad;
+  document.getElementById('fc_ocupacion').textContent=fcCarga;
+  document.getElementById('tei').textContent=cie.tiempo;
+  document.getElementById('resultado').textContent=`TEDIT = ${tedit} días`;
+  document.getElementById('detalle_calculo').textContent=
+    `TEDIT = ${cie.tiempo} × ${fcCarga} × ${fcEdad} = ${tedit} días`;
+  document.getElementById('descripcion_enfermedad').textContent=
+    `Código: ${cie.codigo} — ${cieKey}`;
+}
 </script>
-
 </body>
 </html>
