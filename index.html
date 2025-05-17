@@ -14,9 +14,7 @@
 </style>
 </head>
 <body>
-
 <h2>Calculadora de Días de Incapacidad Temporal – TEDIT</h2>
-
 <table>
   <tr><th>CRITERIO</th><th>ENTRADA</th><th>FACTOR DE CORRECCIÓN</th></tr>
   <tr>
@@ -39,27 +37,20 @@
     <td><span id="tei">-</span></td>
   </tr>
 </table>
-
 <h3 class="output-blue" id="resultado">TEDIT</h3>
-
 <p class="note">* Completa solo las celdas verdes.  
 ** Debes ingresar los tres datos para obtener el TEDIT.</p>
-
 <p id="detalle_calculo" style="font-weight:bold"></p>
 <p id="descripcion_enfermedad"></p>
-
 <script>
 let cieData={}, edadFactor={}, gruposCarga={}, tooltipCarga={};
-
 Promise.all([
   fetch('./cie_data.json').then(r=>r.json()).then(d=>cieData=d),
   fetch('./grupo_edad.json').then(r=>r.json()).then(d=>edadFactor=d),
   fetch('./grupos_carga.json').then(r=>r.json()).then(d=>gruposCarga=d),
   fetch('./tooltip_carga.json').then(r=>r.json()).then(d=>tooltipCarga=d)
 ]).then( inicializar );
-
 function inicializar(){
-  // poblar selector de Grupo de Carga
   const selCarga=document.getElementById('grupoCarga');
   Object.keys(gruposCarga).forEach(k=>{
     const o=document.createElement('option');
@@ -68,17 +59,12 @@ function inicializar(){
     o.title=(tooltipCarga[k]||'')+'\nFactor: '+gruposCarga[k];
     selCarga.appendChild(o);
   });
-
-  // poblar selector CIE
   actualizarListaCIE();
-
-  // listeners
   document.getElementById('busqueda').addEventListener('input', actualizarListaCIE);
   ['grupoCarga','edad','cie'].forEach(id=>{
     document.getElementById(id).addEventListener('change', actualizar)
   });
 }
-
 function actualizarListaCIE(){
   const texto=document.getElementById('busqueda').value.toLowerCase();
   const sel=document.getElementById('cie');
@@ -93,46 +79,31 @@ function actualizarListaCIE(){
   }
   actualizar();
 }
-
 function actualizar(){
   const cieKey=document.getElementById('cie').value;
   const edad=parseInt(document.getElementById('edad').value,10);
   const grupoKey=document.getElementById('grupoCarga').value;
-
   if(!cieKey||isNaN(edad)||!grupoKey) return;
-
   const cie=cieData[cieKey];
   if(!cie||!cie.codigo||!cie.grupo||!cie.tiempo) return;
-
-  const cieCapitulo=cie.codigo.substring(0,3);
+  let cieCapitulo = cie.codigo.substring(0, 3);
   const esMental=grupoKey.startsWith('Mental');
-
-// ─────  VALIDACIÓN SEGÚN CAPÍTULO CIE-10  ─────
-const cieCapitulo = cie.codigo.substring(0, 3);   // ej. “F41”
-const esMental    = grupoKey.startsWith('Mental');
-
-if (cieCapitulo >= 'F00' && cieCapitulo <= 'F99') {      // F00–F99
-  if (!esMental) {
-    alert('Los capítulos F00–F99 permiten solamente carga Mental');
-    return;
+  if(cieCapitulo>='F00'&&cieCapitulo<='F99'){
+    if(!esMental){
+      alert('Los capítulos F00–F99 permiten solamente carga Mental');
+      return;
+    }
+  }else if(cieCapitulo>='C00'&&cieCapitulo<='D48'){
+  }else{
+    if(esMental){
+      alert('Este diagnóstico permite solamente carga Física');
+      return;
+    }
   }
-} else if (cieCapitulo >= 'C00' && cieCapitulo <= 'D48') {   // C00–D48
-  // se permite Física o Mental  → no se hace nada
-} else {                                                    // resto de capítulos
-  if (esMental) {
-    alert('Este diagnóstico permite solamente carga Física');
-    return;
-  }
-}
-
-
-  // factores
   const grupoEdad = edad<37 ? '18-36' : (edad<=55 ? '37-55' : '>55');
   const fcEdad = parseFloat((edadFactor[String(cie.grupo)]||{})[grupoEdad]||1);
   const fcCarga = parseFloat(gruposCarga[grupoKey]||1);
   const tedit = (cie.tiempo*fcEdad*fcCarga).toFixed(2);
-
-  // mostrar
   document.getElementById('fc_edad').textContent=fcEdad;
   document.getElementById('fc_ocupacion').textContent=fcCarga;
   document.getElementById('tei').textContent=cie.tiempo;
