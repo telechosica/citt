@@ -64,14 +64,19 @@ fetch('cie_data.json').then(r => r.json()).then(data => {
 });
 
 fetch('grupo_edad.json').then(r => r.json()).then(data => { edadFactor = data; });
+
+let tooltipCarga = {};
+fetch('tooltip_carga.json').then(r => r.json()).then(tips => { tooltipCarga = tips; });
+
 fetch('grupos_carga.json').then(r => r.json()).then(data => {
+
   grupoCarga = data;
   const select = document.getElementById('grupoCarga');
   for (const [clave, val] of Object.entries(data)) {
     const opt = document.createElement('option');
     opt.value = clave;
     opt.textContent = clave;
-    opt.title = `Factor de corrección: ${val}`;
+    opt.title = `${tooltipCarga[clave] || ""}\nFactor de corrección: ${val}`;
     select.appendChild(opt);
   }
   actualizar();
