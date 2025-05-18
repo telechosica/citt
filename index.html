@@ -251,7 +251,7 @@ const diasManual = parseInt(document.getElementById('diasManual').value);
 const diasBase = Math.round(tedit);
 const diasRedondeado = (!isNaN(diasManual) && diasManual > 0) ? diasManual : diasBase;
   // Actualizar texto con días redondeados
-  document.getElementById(\'lineaTedit\').textContent = `TEDIT = ${cie.tiempo} × ${fcCarga} × ${fcEdad} = ${tedit} días (redondeado a ${diasRedondeado} días)`;
+  document.getElementById('lineaTedit').textContent = `TEDIT = ${cie.tiempo} × ${fcCarga} × ${fcEdad} = ${tedit} días (redondeado a ${diasRedondeado} días)`;
 
   // Mostrar factores individuales
   document.getElementById('fc_edad').textContent = fcEdad;
