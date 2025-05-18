@@ -123,6 +123,12 @@ input, select, textarea { font-size:18px; }
 <p class="note">* Completa solo las celdas verdes.  
 ** Debes ingresar los tres datos para obtener el TEDIT.</p>
 <p id="detalle_calculo" style="font-weight:bold"></p>
+<!-- Línea de cálculo TEDIT -->
+<p id="lineaTedit" style="font-weight:bold"></p>
+<!-- Entrada manual de días -->
+<label style="font-weight:bold">Días de descanso (manual):
+  <input type="number" id="diasManual" min="1" style="width:80px;font-size:18px">
+</label>
 <p id="descripcion_enfermedad"></p>
 <script>
 let cieData={}, edadFactor={}, gruposCarga={}, tooltipCarga={}, ocupaciones={};
@@ -152,6 +158,9 @@ function inicializar(){
       actualizar();
     });
   });
+
+  // Escuchar cambios en días manuales
+  document.getElementById("diasManual").addEventListener("input", actualizar);
 }
 
 function mostrarDescripcionCarga(){
@@ -227,6 +236,13 @@ function actualizar(){
 
   const fcCarga = parseFloat(gruposCarga[grupoKey] || 1);
   const tedit = (cie.tiempo * fcCarga * fcEdad).toFixed(2);
+  // Mostrar línea con el cálculo del TEDIT
+document.getElementById('lineaTedit').textContent = `TEDIT = ${cie.tiempo} × ${fcCarga} × ${fcEdad} = ${tedit} días`;
+
+// Tomar en cuenta los días manuales
+const diasManual = parseInt(document.getElementById('diasManual').value);
+const diasBase = Math.round(tedit);
+const diasRedondeado = (!isNaN(diasManual) && diasManual > 0) ? diasManual : diasBase;
 
   // Mostrar factores individuales
   document.getElementById('fc_edad').textContent = fcEdad;
@@ -234,7 +250,6 @@ function actualizar(){
   document.getElementById('tei').textContent = cie.tiempo;
 
   // Redondeo de días y cálculo de fechas
-  const diasRedondeado = Math.round(tedit);
   const hoy = new Date();
   const fin = new Date(hoy);
   fin.setDate(fin.getDate() + diasRedondeado);
