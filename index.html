@@ -45,6 +45,8 @@
   .grupo-wrapper:hover .grupo-tooltip {
     visibility: visible;
   }
+
+  #descripcionCarga{font-size:22px;font-weight:bold;}
 </style>
 
 </style>
@@ -115,12 +117,13 @@
 <p id="detalle_calculo" style="font-weight:bold"></p>
 <p id="descripcion_enfermedad"></p>
 <script>
-let cieData={}, edadFactor={}, gruposCarga={}, tooltipCarga={};
+let cieData={}, edadFactor={}, gruposCarga={}, tooltipCarga={}, ocupaciones={};
 Promise.all([
   fetch('./cie_data.json').then(r=>r.json()).then(d=>cieData=d),
   fetch('./grupo_edad.json').then(r=>r.json()).then(d=>edadFactor=d),
   fetch('./grupos_carga.json').then(r=>r.json()).then(d=>gruposCarga=d),
-  fetch('./tooltip_carga.json').then(r=>r.json()).then(d=>tooltipCarga=d)
+  fetch('./tooltip_carga.json').then(r=>r.json()).then(d=>tooltipCarga=d),
+  fetch('./ocupaciones.json').then(r=>r.json()).then(d=>ocupaciones=d)
 ]).then(inicializar);
 function inicializar(){
   const selCarga=document.getElementById('grupoCarga');
@@ -131,12 +134,36 @@ function inicializar(){
     o.title=(tooltipCarga[k]||'')+'\nFactor: '+gruposCarga[k];
     selCarga.appendChild(o);
   });
+
+  mostrarDescripcionCarga();
   actualizarListaCIE();
   document.getElementById('busqueda').addEventListener('input', actualizarListaCIE);
   ['grupoCarga','edad','cie'].forEach(id=>{
-    document.getElementById(id).addEventListener('change', actualizar)
+    document.getElementById(id).addEventListener('change', ()=>{
+      if(id==='grupoCarga') mostrarDescripcionCarga();
+      actualizar();
+    });
   });
 }
+
+function mostrarDescripcionCarga(){
+  const grupoKey=document.getElementById('grupoCarga').value;
+  if(!grupoKey){
+    document.getElementById('cardCarga').style.display='none';
+    return;
+  }
+  const num=parseInt(grupoKey.slice(-3),10);
+  let texto='';
+  for(const [desc,info] of Object.entries(ocupaciones)){
+    if(info.grupo===num){
+      texto=desc;
+      break;
+    }
+  }
+  document.getElementById('descripcionCarga').textContent=texto||'–';
+  document.getElementById('cardCarga').style.display='block';
+}
+
 function actualizarListaCIE(){
   const texto=document.getElementById('busqueda').value.toLowerCase();
   const sel=document.getElementById('cie');
