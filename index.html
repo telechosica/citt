@@ -118,16 +118,21 @@ input, select, textarea { font-size:18px; }
 </select></td>
     <td><span id="fc_edad">-</span></td>
   </tr>
+<tr>
+  <td colspan="2">
+    <p id="lineaTedit" style="font-weight:bold;margin:4px 0;"></p>
+    <label style="font-weight:bold">
+      Días de descanso (manual):
+      <input type="number" id="diasManual" min="1" style="width:80px;font-size:18px">
+    </label>
+  </td>
+</tr>
 </table>
 <h3 class="output-blue" id="resultado">TEDIT</h3>
 <p class="note">* Completa solo las celdas verdes.  
 ** Debes ingresar los tres datos para obtener el TEDIT.</p>
 <p id="detalle_calculo" style="font-weight:bold"></p>
-<!-- Línea de cálculo TEDIT -->
-<p id="lineaTedit" style="font-weight:bold"></p>
-<!-- Entrada manual de días -->
-<label style="font-weight:bold">Días de descanso (manual):
-  <input type="number" id="diasManual" min="1" style="width:80px;font-size:18px">
+
 </label>
 <p id="descripcion_enfermedad"></p>
 <script>
@@ -252,7 +257,7 @@ const diasRedondeado = (!isNaN(diasManual) && diasManual > 0) ? diasManual : dia
   // Redondeo de días y cálculo de fechas
   const hoy = new Date();
   const fin = new Date(hoy);
-  fin.setDate(fin.getDate() + diasRedondeado);
+  fin.setDate(fin.getDate() + diasRedondeado - 1);
   const fmt = d => `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}`;
 
   document.getElementById('resultado').innerHTML =
