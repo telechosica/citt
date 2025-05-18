@@ -246,12 +246,12 @@ function actualizar(){
   const fcCarga = parseFloat(gruposCarga[grupoKey] || 1);
   const tedit = (cie.tiempo * fcCarga * fcEdad).toFixed(2);
   // Mostrar línea con el cálculo del TEDIT
-document.getElementById('lineaTedit').textContent = `TEDIT = ${cie.tiempo} × ${fcCarga} × ${fcEdad} = ${tedit} días`;
-
 // Tomar en cuenta los días manuales
 const diasManual = parseInt(document.getElementById('diasManual').value);
 const diasBase = Math.round(tedit);
 const diasRedondeado = (!isNaN(diasManual) && diasManual > 0) ? diasManual : diasBase;
+  // Actualizar texto con días redondeados
+  document.getElementById(\'lineaTedit\').textContent = `TEDIT = ${cie.tiempo} × ${fcCarga} × ${fcEdad} = ${tedit} días (redondeado a ${diasRedondeado} días)`;
 
   // Mostrar factores individuales
   document.getElementById('fc_edad').textContent = fcEdad;
