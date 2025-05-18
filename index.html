@@ -186,10 +186,68 @@ function actualizarListaCIE(){
   }
   actualizar();
 }
+
 function actualizar(){
-  const cieKey=document.getElementById('cie').value;
+  const cieKey = document.getElementById('cie').value.trim();
   const grupoEdad = document.getElementById('edad').value;
-  const fcEdad = parseFloat((edadFactor[String(cie.grupo)]||{})[grupoEdad]||1);
+  const grupoKey = document.getElementById('grupoCarga').value;
+
+  // Necesitamos los tres criterios para continuar
+  if(!cieKey || !grupoEdad || !grupoKey){
+    document.getElementById('resultado').innerHTML = '';
+    return;
+  }
+
+  const cie = cieData[cieKey];
+  if(!cie || !cie.codigo || !cie.grupo || !cie.tiempo){
+    document.getElementById('resultado').innerHTML = '';
+    return;
+  }
+
+  // Factor por edad
+  const fcEdad = parseFloat( (edadFactor[String(cie.grupo)] || {})[grupoEdad] || 1 );
+
+  // Validación de compatibilidad Carga Física / Mental
+  const esMental = grupoKey.startsWith('Mental');
+  const cieCapitulo = cie.codigo.substring(0,3);
+
+  if(cieCapitulo >= 'F00' && cieCapitulo <= 'F99'){
+    if(!esMental){
+      alert('Los capítulos F00–F99 permiten solamente carga Mental');
+      return;
+    }
+  }else if(cieCapitulo >= 'C00' && cieCapitulo <= 'D48'){
+    // Neoplasias – se permite Física o Mental
+  }else{
+    if(esMental){
+      alert('Este diagnóstico permite solamente carga Física');
+      return;
+    }
+  }
+
+  const fcCarga = parseFloat(gruposCarga[grupoKey] || 1);
+  const tedit = (cie.tiempo * fcCarga * fcEdad).toFixed(2);
+
+  // Mostrar factores individuales
+  document.getElementById('fc_edad').textContent = fcEdad;
+  document.getElementById('fc_ocupacion').textContent = fcCarga;
+  document.getElementById('tei').textContent = cie.tiempo;
+
+  // Redondeo de días y cálculo de fechas
+  const diasRedondeado = Math.round(tedit);
+  const hoy = new Date();
+  const fin = new Date(hoy);
+  fin.setDate(fin.getDate() + diasRedondeado);
+  const fmt = d => `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}`;
+
+  document.getElementById('resultado').innerHTML =
+    `SE EMITE DESCANSO MÉDICO: ${diasRedondeado} días<br>` +
+    `CONTINGENCIA: ${cie.grupo}<br>` +
+    `FI: ${fmt(hoy)} AL FT: ${fmt(fin)}<br>` +
+    `TEDIT = ${cie.tiempo} × ${fcCarga} × ${fcEdad} = ${tedit} días<br>` +
+    `Código: ${cie.codigo} — ${cieKey}`;
+}
+)[grupoEdad]||1);
   const grupoKey=document.getElementById('grupoCarga').value;
   if(!cieKey||!grupoEdad||!grupoKey) return;
   const cie=cieData[cieKey];
