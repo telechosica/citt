@@ -254,9 +254,6 @@ document.getElementById('lineaTedit').textContent =
 const diasManual = parseInt(document.getElementById('diasManual').value);
 const diasFinal = (!isNaN(diasManual) && diasManual > 0) ? diasManual : diasBase;
   // Mostrar línea con el cálculo del TEDIT
-// Tomar en cuenta los días manuales
-const diasManual = parseInt(document.getElementById('diasManual').value);
-const diasBase = Math.round(tedit);
 // Actualizar texto con días redondeados
   // Mostrar factores individuales
   document.getElementById('fc_edad').textContent = fcEdad;
