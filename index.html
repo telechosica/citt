@@ -267,11 +267,11 @@ const diasFinal = (!isNaN(diasManual) && diasManual > 0) ? diasManual : diasBase
   const fmt = d => `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}`;
 
   document.getElementById('resultado').innerHTML =
-    `SE EMITE DESCANSO MÉDICO: ${diasFinal} días<br>` +
-    `CONTINGENCIA: ${contingencia}` +
-    `FI: ${fmt(hoy)} AL FT: ${fmt(fin)}<br>` +
-    `TEDIT = ${cie.tiempo} × ${fcCarga} × ${fcEdad} = ${tedit} días<br>` +
-    `Código: ${cie.codigo} — ${cieKey}`;
+  `SE EMITE DESCANSO MÉDICO: ${diasFinal} días<br>` +
+  `CONTINGENCIA: ${contingencia}<br>` +
+  `FI: ${fmt(hoy)} AL FT: ${fmt(fin)}<br>` +
+  `TEDIT = ${cie.tiempo} × ${fcCarga} × ${fcEdad} = ${tedit} días<br>` +
+  `Código: ${cie.codigo} — ${cieKey}`;
 }
 </script>
 
