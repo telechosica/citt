@@ -115,17 +115,11 @@ fechaFin.setDate(fechaFin.getDate() + diasRedondeado);
 
 const formatoFecha = d => `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}`;
 
-document.getElementById('resultado').textContent = `TEDIT = ${tedit} días`;
-
-document.getElementById('detalle_calculo').textContent =
-  `SE EMITE DESCANSO MÉDICO: ${diasRedondeado} días
-` +
-  `CONTINGENCIA: ${cie.grupo}
-` +
-  `FI: ${formatoFecha(fechaHoy)} AL FT: ${formatoFecha(fechaFin)}
-` +
-  `TEDIT = ${cie.tiempo} × ${fcCarga} × ${fcEdad} = ${tedit} días
-` +
+document.getElementById('resultado').innerHTML = 
+  `SE EMITE DESCANSO MÉDICO: ${diasRedondeado} días<br>` +
+  `CONTINGENCIA: ${cie.grupo}<br>` +
+  `FI: ${formatoFecha(fechaHoy)} AL FT: ${formatoFecha(fechaFin)}<br>` +
+  `TEDIT = ${cie.tiempo} × ${fcCarga} × ${fcEdad} = ${tedit} días<br>` +
   `Código: ${cie.codigo} — ${cieKey}`;
 
 }
