@@ -245,14 +245,19 @@ function actualizar(){
 
   const fcCarga = parseFloat(gruposCarga[grupoKey] || 1);
   const tedit = (cie.tiempo * fcCarga * fcEdad).toFixed(2);
+  const diasBase = Math.round(tedit);                    // redondeo puro del TEDIT
+// Mostrar cálculo con redondeo fijo
+document.getElementById('lineaTedit').textContent =
+  `TEDIT = ${cie.tiempo} × ${fcCarga} × ${fcEdad} = ${tedit} días (redondeado a ${diasBase} días)`;
+
+// Leer días manuales para el resultado final (sin alterar la línea anterior)
+const diasManual = parseInt(document.getElementById('diasManual').value);
+const diasFinal = (!isNaN(diasManual) && diasManual > 0) ? diasManual : diasBase;
   // Mostrar línea con el cálculo del TEDIT
 // Tomar en cuenta los días manuales
 const diasManual = parseInt(document.getElementById('diasManual').value);
 const diasBase = Math.round(tedit);
-const diasRedondeado = (!isNaN(diasManual) && diasManual > 0) ? diasManual : diasBase;
-  // Actualizar texto con días redondeados
-  document.getElementById('lineaTedit').textContent = `TEDIT = ${cie.tiempo} × ${fcCarga} × ${fcEdad} = ${tedit} días (redondeado a ${diasRedondeado} días)`;
-
+// Actualizar texto con días redondeados
   // Mostrar factores individuales
   document.getElementById('fc_edad').textContent = fcEdad;
   document.getElementById('fc_ocupacion').textContent = fcCarga;
@@ -261,11 +266,11 @@ const diasRedondeado = (!isNaN(diasManual) && diasManual > 0) ? diasManual : dia
   // Redondeo de días y cálculo de fechas
   const hoy = new Date();
   const fin = new Date(hoy);
-  fin.setDate(fin.getDate() + diasRedondeado - 1);
+  fin.setDate(fin.getDate() + diasFinal - 1);
   const fmt = d => `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}`;
 
   document.getElementById('resultado').innerHTML =
-    `SE EMITE DESCANSO MÉDICO: ${diasRedondeado} días<br>` +
+    `SE EMITE DESCANSO MÉDICO: ${diasFinal} días<br>` +
     `CONTINGENCIA: ${contingencia}` +
     `FI: ${fmt(hoy)} AL FT: ${fmt(fin)}<br>` +
     `TEDIT = ${cie.tiempo} × ${fcCarga} × ${fcEdad} = ${tedit} días<br>` +
