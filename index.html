@@ -110,7 +110,12 @@ input, select, textarea { font-size:18px; }
   </tr>
   <tr>
     <td>Edad</td>
-    <td><input type="number" id="edad" class="input-green" min="0" max="100" value="30" /></td>
+    <td><select id="edad" class="input-green">
+  <option value="">—</option>
+  <option value="18-36">18‑36</option>
+  <option value="37-55">37‑55</option>
+  <option value=">55">&gt;55</option>
+</select></td>
     <td><span id="fc_edad">-</span></td>
   </tr>
 </table>
@@ -183,9 +188,10 @@ function actualizarListaCIE(){
 }
 function actualizar(){
   const cieKey=document.getElementById('cie').value;
-  const edad=parseInt(document.getElementById('edad').value,10);
+  const grupoEdad = document.getElementById('edad').value;
+  const fcEdad = parseFloat((edadFactor[String(cie.grupo)]||{})[grupoEdad]||1);
   const grupoKey=document.getElementById('grupoCarga').value;
-  if(!cieKey||isNaN(edad)||!grupoKey) return;
+  if(!cieKey||!grupoEdad||!grupoKey) return;
   const cie=cieData[cieKey];
   if(!cie||!cie.codigo||!cie.grupo||!cie.tiempo) return;
   let cieCapitulo = cie.codigo.substring(0, 3);
@@ -202,8 +208,6 @@ function actualizar(){
       return;
     }
   }
-  const grupoEdad = edad<37 ? '18-36' : (edad<=55 ? '37-55' : '>55');
-  const fcEdad = parseFloat((edadFactor[String(cie.grupo)]||{})[grupoEdad]||1);
   const fcCarga = parseFloat(gruposCarga[grupoKey]||1);
   const tedit = (cie.tiempo*fcEdad*fcCarga).toFixed(2);
   document.getElementById('fc_edad').textContent=fcEdad;
