@@ -166,6 +166,8 @@ function inicializar(){
 
   // Escuchar cambios en días manuales
   document.getElementById("diasManual").addEventListener("input", actualizar);
+
+  document.getElementById("contingencia").addEventListener("change", actualizar);
 }
 
 function mostrarDescripcionCarga(){
@@ -205,6 +207,7 @@ function actualizar(){
   const cieKey = document.getElementById('cie').value.trim();
   const grupoEdad = document.getElementById('edad').value;
   const grupoKey = document.getElementById('grupoCarga').value;
+  const contingencia = document.getElementById(\'contingencia\').value;
 
   // Necesitamos los tres criterios para continuar
   if(!cieKey || !grupoEdad || !grupoKey){
@@ -262,7 +265,7 @@ const diasRedondeado = (!isNaN(diasManual) && diasManual > 0) ? diasManual : dia
 
   document.getElementById('resultado').innerHTML =
     `SE EMITE DESCANSO MÉDICO: ${diasRedondeado} días<br>` +
-    `CONTINGENCIA: ${cie.grupo}<br>` +
+    `CONTINGENCIA: ${contingencia}` +
     `FI: ${fmt(hoy)} AL FT: ${fmt(fin)}<br>` +
     `TEDIT = ${cie.tiempo} × ${fcCarga} × ${fcEdad} = ${tedit} días<br>` +
     `Código: ${cie.codigo} — ${cieKey}`;
