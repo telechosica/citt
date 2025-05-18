@@ -36,18 +36,6 @@
     <td><input type="number" id="edad" class="input-green" min="0" max="100" value="30" /></td>
     <td><span id="fc_edad">-</span></td>
   </tr>
-
-<tr>
-  <td>Fecha de Inicio (FI)</td>
-  <td><input type="date" id="fechaInicio" class="input-green" /></td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>Fecha de Término (FT)</td>
-  <td><input type="date" id="fechaFin" class="input-green" /></td>
-  <td>-</td>
-</tr>
-
 </table>
 <h3 class="output-blue" id="resultado">TEDIT</h3>
 <p class="note">* Completa solo las celdas verdes.  
@@ -120,22 +108,25 @@ function actualizar(){
   document.getElementById('fc_ocupacion').textContent=fcCarga;
   document.getElementById('tei').textContent=cie.tiempo;
   
-const fi = document.getElementById('fechaInicio').value;
-const ft = document.getElementById('fechaFin').value;
 const diasRedondeado = Math.round(tedit);
+const fechaHoy = new Date();
+const fechaFin = new Date(fechaHoy);
+fechaFin.setDate(fechaFin.getDate() + diasRedondeado);
 
-const resultadoFinal = 
+const formatoFecha = d => `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}`;
+
+document.getElementById('resultado').textContent = `TEDIT = ${tedit} días`;
+
+document.getElementById('detalle_calculo').textContent =
   `SE EMITE DESCANSO MÉDICO: ${diasRedondeado} días
 ` +
   `CONTINGENCIA: ${cie.grupo}
 ` +
-  (fi && ft ? `FI: ${new Date(fi).toLocaleDateString('es-PE')} AL FT: ${new Date(ft).toLocaleDateString('es-PE')}
-` : '') +
+  `FI: ${formatoFecha(fechaHoy)} AL FT: ${formatoFecha(fechaFin)}
+` +
   `TEDIT = ${cie.tiempo} × ${fcCarga} × ${fcEdad} = ${tedit} días
 ` +
   `Código: ${cie.codigo} — ${cieKey}`;
-
-document.getElementById('resultado').textContent = resultadoFinal;
 
 }
 </script>
